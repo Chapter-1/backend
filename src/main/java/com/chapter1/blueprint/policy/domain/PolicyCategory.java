@@ -1,12 +1,14 @@
 package com.chapter1.blueprint.policy.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter @Setter
-@Table(name = "policy",catalog = "policy_category")
 public class PolicyCategory {
     @Id
     @GeneratedValue

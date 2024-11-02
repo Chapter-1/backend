@@ -1,17 +1,20 @@
 package com.chapter1.blueprint.policy.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
 
 @Entity
-@Getter @Setter
-@Table(name = "policy_list",catalog = "policy")
-public class PolicyList {
+@Getter
+@Setter
+public class policyList {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Column(name = "idx")
     private Long idx;
 
