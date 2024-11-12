@@ -278,4 +278,8 @@ public class FinanceService {
             return "API 데이터 처리 중 오류 발생: " + e.getMessage();
         }
     }
+
+    public String getImageUrlByIdx(Long idx) {
+        return savingsListRepository.findImageUrlById(idx);
+    }
 }
