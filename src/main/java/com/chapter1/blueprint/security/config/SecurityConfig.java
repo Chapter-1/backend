@@ -96,14 +96,28 @@ private String[] getPublicEndpoints() {
     };
 }
 
-private String[] getAuthenticatedEndpoints() {
-    return new String[] {
-            "/member/**",
-            "/finance/filter/**",
-            "/policy/recommendation",
-            "/subscription/recommendation"
-    };
-}
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                        .requestMatchers(
+                                "/member/login",
+                                "/member/register",
+                                "/member/checkMemberId/**",
+                                "/member/checkEmail/**",
+                                "/member/find/memberId",
+                                "/member/find/password",
+                                "/member/email/sendVerification",
+                                "/member/email/verifyEmailCode"
+                        ).permitAll()
+                        .requestMatchers("/member/**").authenticated()
+                        .requestMatchers("/finance/filter/**").authenticated()
+                        .requestMatchers("/policy/recommendation", "/policy/peer").authenticated()
+                        .requestMatchers("/policy/list/**", "/policy/detail/**", "/policy/filter", "/policy/update/TK","/policy/update/company").permitAll()
+                        .requestMatchers("/finance/**", "/finance/filter/**").permitAll()
+
 
 private String[] getSwaggerEndpoints() {
     return new String[] {
