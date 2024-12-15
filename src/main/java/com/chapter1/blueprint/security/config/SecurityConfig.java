@@ -44,101 +44,76 @@ public class SecurityConfig {
     private final MemberRepository memberRepository;
 
     @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationConfiguration authenticationConfiguration) throws Exception {
-    AuthenticationManager authenticationManager = authenticationManager(authenticationConfiguration);
-    
-    // JWT 인증 필터 설정
-    JwtUsernamePasswordAuthenticationFilter jwtAuthFilter = createJwtAuthenticationFilter(authenticationManager);
-    
-    return http
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                    .requestMatchers(getPublicEndpoints()).permitAll()
-                    .requestMatchers(getAuthenticatedEndpoints()).authenticated()
-                    .requestMatchers(getSwaggerEndpoints()).permitAll()
-                    .anyRequest().permitAll()
-            )
-            .exceptionHandling(exception -> exception
-                    .authenticationEntryPoint(authenticationEntryPoint)
-                    .accessDeniedHandler(accessDeniedHandler)
-            )
-            .addFilterBefore(authenticationErrorFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAt(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
-}
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        AuthenticationManager authenticationManager = authenticationManager(authenticationConfiguration);
 
-private String[] getPublicEndpoints() {
-    return new String[] {
-            "/member/login",
-            "/member/register",
-            "/member/checkMemberId/**",
-            "/member/checkEmail/**",
-            "/member/find/memberId",
-            "/member/find/password",
-            "/member/email/sendVerification",
-            "/member/email/verifyEmailCode",
-            "/policy/list/**",
-            "/policy/detail/**",
-            "/policy/filter",
-            "/policy/update/TK",
-            "/policy/update/company",
-            "/finance/**",
-            "/finance/filter/**",
-            "/finance/healthcheck",
-            "/subscription/city",
-            "/subscription/district",
-            "/subscription/local",
-            "/subscription/update"
-    };
-}
+        JwtUsernamePasswordAuthenticationFilter jwtAuthFilter = createJwtAuthenticationFilter(authenticationManager);
 
-        http
+        return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                        .requestMatchers(
-                                "/member/login",
-                                "/member/register",
-                                "/member/checkMemberId/**",
-                                "/member/checkEmail/**",
-                                "/member/find/memberId",
-                                "/member/find/password",
-                                "/member/email/sendVerification",
-                                "/member/email/verifyEmailCode"
-                        ).permitAll()
-                        .requestMatchers("/member/**").authenticated()
-                        .requestMatchers("/finance/filter/**").authenticated()
-                        .requestMatchers("/policy/recommendation", "/policy/peer").authenticated()
-                        .requestMatchers("/policy/list/**", "/policy/detail/**", "/policy/filter", "/policy/update/TK","/policy/update/company").permitAll()
-                        .requestMatchers("/finance/**", "/finance/filter/**").permitAll()
+                        .requestMatchers(getPublicEndpoints()).permitAll()
+                        .requestMatchers(getSwaggerEndpoints()).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
+                .addFilterBefore(authenticationErrorFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 
+    private String[] getPublicEndpoints() {
+        return new String[]{
+                "/member/login",
+                "/member/register",
+                "/member/checkMemberId/**",
+                "/member/checkEmail/**",
+                "/member/find/memberId",
+                "/member/find/password",
+                "/member/email/sendVerification",
+                "/member/email/verifyEmailCode",
+                "/policy/list/**",
+                "/policy/detail/**",
+                "/policy/filter",
+                "/policy/update/TK",
+                "/policy/update/company",
+                "/finance/**",
+                "/finance/filter/**",
+                "/finance/healthcheck",
+                "/subscription/city",
+                "/subscription/district",
+                "/subscription/local",
+                "/subscription/update"
+        };
+    }
 
-private String[] getSwaggerEndpoints() {
-    return new String[] {
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/swagger-resources/**",
-            "/webjars/**"
-    };
-}
+    private String[] getSwaggerEndpoints() {
+        return new String[]{
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/swagger-resources/**",
+                "/webjars/**"
+        };
+    }
 
-private JwtUsernamePasswordAuthenticationFilter createJwtAuthenticationFilter(
-        AuthenticationManager authenticationManager) {
-    return new JwtUsernamePasswordAuthenticationFilter(
-            authenticationManager,
-            loginSuccessHandler,
-            loginFailureHandler,
-            memberRepository,
-            objectMapper
-    );
-}
+    private JwtUsernamePasswordAuthenticationFilter createJwtAuthenticationFilter(
+            AuthenticationManager authenticationManager) {
+        return new JwtUsernamePasswordAuthenticationFilter(
+                authenticationManager,
+                loginSuccessHandler,
+                loginFailureHandler,
+                memberRepository,
+                objectMapper
+        );
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -150,7 +125,7 @@ private JwtUsernamePasswordAuthenticationFilter createJwtAuthenticationFilter(
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
-        
+
         source.registerCorsConfiguration("/**", config);
         return source;
     }
@@ -162,7 +137,6 @@ private JwtUsernamePasswordAuthenticationFilter createJwtAuthenticationFilter(
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-
         return new BCryptPasswordEncoder();
     }
 }
